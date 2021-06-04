@@ -1,5 +1,8 @@
 package com.nice.nice.test.controller;
 
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,6 +27,7 @@ import java.util.List;
 public class testcontoller {
     private String cookie;
     public List<String> data = new ArrayList<>();
+    private boolean commit = true;
 
     @RequestMapping(value = "/main.do", method = RequestMethod.GET)
     public String index(Model model) {
@@ -34,9 +38,10 @@ public class testcontoller {
         return "main";
     }
 
-    @RequestMapping(value = "/test")
+    @RequestMapping(value = "/test.do")
     public ModelAndView test(){
         ModelAndView mav = new ModelAndView("main");
+        resultChk("test");
         mav.addObject("data","taesta");
         return mav;
     }
@@ -74,6 +79,11 @@ public class testcontoller {
                 resultChk(project);
             } else{
 
+            }
+            if(commit){
+                data.add("commit ok");
+            } else{
+                data.add("commit fail");
             }
             mav.addObject("data", data);
         } catch (Exception e){
@@ -129,7 +139,6 @@ public class testcontoller {
         }
     }
 
-    @RequestMapping(value = "/result.do")
     public void resultChk(String project){
         try{
             HttpHeaders headers = new HttpHeaders();
@@ -137,13 +146,26 @@ public class testcontoller {
 
             HttpEntity entity = new HttpEntity(null,headers);
 
-            project = "test";
+//            project = "test";
 
             RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity responseEntity = restTemplate.exchange("http://localhost:8080/api/projects/" + project + "/fileresult", HttpMethod.GET, entity, String.class);
-//            JSONParser parser = new JSONParser();
-//            JSONObject jsonObject = (JSONObject) parser.parse(responseEntity.getBody().toString());
+            ResponseEntity<String> responseEntity = restTemplate.exchange("http://localhost:8080/api/projects/" + project + "/fileresult", HttpMethod.GET, entity, String.class);
+            //responseEntity.getBody().toString().split("projectName");
+            JSONParser parser = new JSONParser();
+            JSONArray array = (JSONArray) parser.parse(responseEntity.getBody());
 
+            for(int i=0;i<array.size();i++){
+                JSONObject obj = (JSONObject) array.get(i);
+                JSONObject risky = (JSONObject) obj.get("risky");
+                long total = 0;
+                for(int j=0;j<5;j++){
+                    if(risky.get(Integer.toString(j))!=null)
+                        total += (long)risky.get(Integer.toString(j));
+                }
+                if(total >= 10)
+                    commit = false;
+                data.add(obj.get("fileName")+" : "+total);
+            }
             System.out.println(responseEntity.getStatusCode()+", "+responseEntity.getBody());
         }catch (Exception e){
             data.add("get result fail");

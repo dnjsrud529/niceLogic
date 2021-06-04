@@ -35,7 +35,7 @@
         </form>
     </div>
     <div>
-        <form action="/result.do" method="get">
+        <form action="/test.do" method="get">
 
             <input type="submit" value="전송"/>
         </form>
