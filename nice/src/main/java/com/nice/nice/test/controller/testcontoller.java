@@ -29,7 +29,7 @@ public class testcontoller {
     public List<String> data = new ArrayList<>();
     private boolean commit = true;
 
-    @RequestMapping(value = "/main.do", method = RequestMethod.GET)
+    @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(Model model) {
         //model.addAttribute("data", "Hello, Spring from IntelliJ! :)");
         data.add("");
@@ -39,11 +39,8 @@ public class testcontoller {
     }
 
     @RequestMapping(value = "/test.do")
-    public ModelAndView test(){
-        ModelAndView mav = new ModelAndView("main");
-        resultChk("test");
-        mav.addObject("data","taesta");
-        return mav;
+    public String test(){
+        return "main";
     }
 
     @RequestMapping(value = "/naver.do")
@@ -70,25 +67,24 @@ public class testcontoller {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> responseEntity = restTemplate.exchange("http://localhost:8080/user/login/process", HttpMethod.POST, entity, String.class);
             cookie = responseEntity.getHeaders().get("SET-COOKIE").get(0);
-            data.add(responseEntity.getStatusCode() + "\n" + responseEntity.getBody()+"\n\n");
+            data.add(responseEntity.getStatusCode() + "\n" + responseEntity.getBody() + "\n\n");
 
             response.addHeader("SET-COOKIE", cookie);
             System.out.println(responseEntity.getStatusCode());
             System.out.println(responseEntity.getBody());
-            if(anal(project,filePath)){
+            if (anal(project, filePath)) {
                 resultChk(project);
             } else{
-
             }
-            if(commit){
-                data.add("commit ok");
+            if (commit) {
+                commit(project);
             } else{
                 data.add("commit fail");
             }
             mav.addObject("data", data);
-        } catch (Exception e){
+        } catch (Exception e) {
             data.add("fail\n\n");
-            mav.addObject("data",data);
+            mav.addObject("data", data);
         }
         return mav;
     }
@@ -167,35 +163,12 @@ public class testcontoller {
                 data.add(obj.get("fileName")+" : "+total);
             }
             System.out.println(responseEntity.getStatusCode()+", "+responseEntity.getBody());
+
+            saveResult(responseEntity.getBody());
         }catch (Exception e){
             data.add("get result fail");
         }
     }
-
-    public class FileResult {
-        String fileName;
-        HashMap<Integer, Integer> risky;
-        String url;
-
-        public FileResult(String f, HashMap<Integer, Integer> r, String u) {
-            fileName = f;
-            risky = r;
-            url = u;
-        }
-
-        public String getFileName() {
-            return fileName;
-        }
-
-        public HashMap<Integer, Integer> getRisky() {
-            return risky;
-        }
-
-        public String getUrl() {
-            return url;
-        }
-    }
-
 
     public String analCheck(String projectname){
         String status = "";
@@ -228,6 +201,39 @@ public class testcontoller {
             } else {
                 filelist.add(f.getAbsolutePath());
             }
+        }
+    }
+
+    public void commit(String project){
+        try{
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("project", project);
+            params.add("status", "success");
+
+            HttpEntity entity = new HttpEntity(params, null);
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity responseEntity = restTemplate.exchange("http://localhost:8088/commit", HttpMethod.POST, entity, String.class);
+            data.add("Commit Success");
+            System.out.println(responseEntity.getStatusCode()+", "+responseEntity.getBody());
+        }catch (Exception e){
+            data.add("Commit Fail");
+        }
+    }
+
+
+    private void saveResult(String result) {
+        try{
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("result", result);
+
+            HttpEntity entity = new HttpEntity(params, null);
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> responseEntity = restTemplate.exchange("http://localhost:8088/saveDB", HttpMethod.POST, entity, String.class);
+            data.add("Save Success");
+            System.out.println(responseEntity.getStatusCode() + ", " + responseEntity.getBody());
+        } catch (Exception e) {
+            data.add("Save Fail");
         }
     }
 }
