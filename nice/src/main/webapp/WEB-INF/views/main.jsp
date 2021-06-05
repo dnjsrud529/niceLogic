@@ -2,21 +2,38 @@
 <%@ page import="java.util.ArrayList" %>
 
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%--<%--%>
-<%--    List<String> log = new ArrayList<>();--%>
-<%--    try {--%>
-<%--        log = (List<String>) request.getAttribute("data");--%>
-<%--        if (log == null)--%>
-<%--            log.add("");--%>
-<%--    } catch(Exception e){--%>
-<%--        log.add("");--%>
-<%--    }--%>
-<%--%>--%>
 
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Title</title>
+    <script src="webjars/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        // $.ajax({
+        //     url:"/data.do",
+        //     dataType:"json",
+        //     success:function(data){
+        //         console.log(data);
+        //     }
+        // });
+        $(function() {
+
+            timer = setInterval( function () {
+                $.ajax ({
+                    url : "/data.do",
+                    cache : false,
+                    success : function (data) {
+                        console.log(data);
+                        $('.change-greeting').text(data);
+                    }
+
+                });
+
+            }, 3000);
+
+        });
+
+    </script>
 </head>
 <body>
     <div>
@@ -30,8 +47,11 @@
             <input type="hidden" name="chk" value="b"/>
             <input type="submit" id ="btn" value="Commit B"/>
         </form>
-
-
+    </div>
+    <div>
+        <br/>
+        <p class="change-greeting"></p>
+        <br/>
     </div>
 <div>
 <%
@@ -40,7 +60,7 @@
     for(String s : log){
         if(s.contains("commit")){
 %>
-    <h2><%=s%></h2>
+    <h1><%=s%></h1>
 <%
         }else{
 %>
@@ -50,6 +70,8 @@
     }
 %>
 </div>
+    <br/>
+    <br/>
 <div>
     <h3>PassFiles</h3>
     <%
@@ -62,7 +84,7 @@
     }
 %>
 </div>
-
+    <br/><br/>
     <div>
         <h3>FailFiles</h3>
         <%

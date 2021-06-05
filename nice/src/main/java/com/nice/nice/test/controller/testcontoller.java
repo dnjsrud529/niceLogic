@@ -15,6 +15,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.commons.CommonsMultipartFile;
@@ -36,6 +37,7 @@ public class testcontoller {
     public List<String> passFiles = new ArrayList<>();
     public List<String> failFiles = new ArrayList<>();
     private boolean commit = true;
+    public String status = "";
 
     @RequestMapping(value = "/", method = RequestMethod.GET)
     public String index(Model model) {
@@ -57,6 +59,7 @@ public class testcontoller {
         passFiles.clear();
         failFiles.clear();
         data.clear();
+        status="";
 
         String chk = request.getParameter("chk");
 
@@ -80,6 +83,7 @@ public class testcontoller {
             ResponseEntity<String> responseEntity = restTemplate.exchange("http://localhost:8080/user/login/process", HttpMethod.POST, entity, String.class);
             cookie = responseEntity.getHeaders().get("SET-COOKIE").get(0);
             //data.add(responseEntity.getStatusCode() + "\n" + responseEntity.getBody()+"\n\n");
+            status = "Login Success";
 
             response.addHeader("SET-COOKIE", cookie);
             System.out.println(responseEntity.getStatusCode());
@@ -90,8 +94,10 @@ public class testcontoller {
 
             }
             if(commit){
+                status = "";
                 data.add("COMMIT OK");
             } else{
+                status="";
                 data.add("COMMIT FAIL");
                 if(failFiles.size() != 0)
                     data.add(failFiles.size()+"개의 파일에서 10개 이상의 경고가 검출되었습니다.");
@@ -158,21 +164,25 @@ public class testcontoller {
            // ResponseEntity<String> responseEntity = restTemplate.exchange("http://localhost:8080/api/analyzeCluster", HttpMethod.POST, entity, String.class);
             ResponseEntity<String> responseEntity = restTemplate.exchange("http://localhost:8080/api/upload", HttpMethod.POST, entity, String.class);
             //data.add(responseEntity.getStatusCode() + "\n" + responseEntity.getBody()+"\n\n");
+            status="Anal Start";
             Thread.sleep(2000);
             if(analCheck(project).contains("success")) {
                 //data.add("anal complete!");
                 System.out.println(responseEntity.getStatusCode());
                 System.out.println(responseEntity.getBody());
+                status = "Anal Complete";
                 return true;
             }
             else {
                 //data.add("anal fail!");
+                status = "Anal Fail";
                 System.out.println(responseEntity.getStatusCode());
                 System.out.println(responseEntity.getBody());
                 return false;
             }
 
         }catch (Exception e){
+            status = "Anal Fail";
             //data.add("anal fail\n\n");
             return false;
         }
@@ -180,6 +190,7 @@ public class testcontoller {
 
     public void resultChk(String project){
         try{
+            status="Result checking";
             HttpHeaders headers = new HttpHeaders();
             headers.add("Cookie",cookie);
 
@@ -207,6 +218,7 @@ public class testcontoller {
             }
             System.out.println(responseEntity.getStatusCode()+", "+responseEntity.getBody());
         }catch (Exception e){
+            status = "Get Result Fail";
             //data.add("get result fail");
         }
     }
@@ -244,5 +256,11 @@ public class testcontoller {
 //            }
 //        }
 //    }
+
+    @RequestMapping(value = "/data.do")
+    @ResponseBody
+    public String data(){
+        return status;
+    }
 
 }
