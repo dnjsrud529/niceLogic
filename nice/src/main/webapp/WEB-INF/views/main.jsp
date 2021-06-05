@@ -9,13 +9,6 @@
     <title>Title</title>
     <script src="webjars/jquery/3.6.0/jquery.min.js"></script>
     <script>
-        // $.ajax({
-        //     url:"/data.do",
-        //     dataType:"json",
-        //     success:function(data){
-        //         console.log(data);
-        //     }
-        // });
         $(function() {
 
             timer = setInterval( function () {
@@ -25,6 +18,7 @@
                     success : function (data) {
                         console.log(data);
                         $('.change-greeting').text(data);
+
                     }
 
                 });
@@ -33,31 +27,39 @@
 
         });
 
+        function onSubmit(){
+            $('#pass').remove();
+            $('#fail').remove();
+            $('#result').remove();
+            // $("input[name=pass]").remove();
+        }
+
     </script>
 </head>
 <body>
+<input type="hidden" id="clear" value="false"/>
     <div>
-        <form action="/commit.do" method="post">
-                <input type="hidden" name="chk" value="a"/>
+        <form action="/commit.do" method="post" onsubmit="onSubmit()">
+            <input type="hidden" name="chk" value="a"/>
             <input type="submit" value="Commit A"/>
         </form>
     </div>
     <div>
-        <form action="/commit.do" method="post">
+        <form action="/commit.do" method="post" onsubmit="onSubmit()">
             <input type="hidden" name="chk" value="b"/>
-            <input type="submit" id ="btn" value="Commit B"/>
+            <input type="submit" value="Commit B"/>
         </form>
     </div>
     <div>
-        <br/>
         <p class="change-greeting"></p>
         <br/>
     </div>
-<div>
+<div id="result">
 <%
-    List<String> log = (List<String>) request.getAttribute("data");
-    if(log != null)
-    for(String s : log){
+    List<String> datalist = (List<String>) request.getAttribute("data");
+
+    if(datalist != null)
+    for(String s : datalist){
         if(s.contains("commit")){
 %>
     <h1><%=s%></h1>
@@ -72,25 +74,27 @@
 </div>
     <br/>
     <br/>
-<div>
+
     <h3>PassFiles</h3>
+<div id = "pass">
     <%
-        List<String> pass = (List<String>) request.getAttribute("pass");
-        if(pass != null)
-            for(String s : pass){
+        List<String> passlist = (List<String>) request.getAttribute("pass");
+        if(passlist != null)
+            for(String s : passlist){
     %>
-    <p style="font-size: 15px"><%=s%>
+        <p style="font-size: 15px"><%=s%>
             <%
     }
 %>
 </div>
-    <br/><br/>
-    <div>
+    <br/>
+
         <h3>FailFiles</h3>
+<div id="fail">
         <%
-            List<String> fail = (List<String>) request.getAttribute("fail");
-            if(fail != null)
-                for(String s : fail){
+            List<String> faillist = (List<String>) request.getAttribute("fail");
+            if(faillist != null)
+                for(String s : faillist){
         %>
         <p style="font-size: 15px"><%=s%>
                 <%
