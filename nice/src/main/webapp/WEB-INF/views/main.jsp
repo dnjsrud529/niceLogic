@@ -6,7 +6,7 @@
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Title</title>
+    <title>Business Logic</title>
     <script src="webjars/jquery/3.6.0/jquery.min.js"></script>
     <script>
         $(function() {

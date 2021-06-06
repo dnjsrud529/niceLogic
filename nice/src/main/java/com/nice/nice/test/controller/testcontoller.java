@@ -118,6 +118,7 @@ public class testcontoller {
             headers.add("Cookie",cookie);
             headers.setContentType(MediaType.MULTIPART_FORM_DATA);
 
+            commit = true;
             List<String> files = new ArrayList<>();
 
             //findFile(filepath,files);
@@ -204,7 +205,7 @@ public class testcontoller {
                 JSONObject obj = (JSONObject) array.get(i);
                 JSONObject risky = (JSONObject) obj.get("risky");
                 long total = 0;
-                for(int j=0;j<5;j++){
+                for(int j=1;j<6;j++){
                     if(risky.get(Integer.toString(j))!=null)
                         total += (long)risky.get(Integer.toString(j));
                 }
