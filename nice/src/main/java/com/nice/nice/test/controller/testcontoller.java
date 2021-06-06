@@ -97,7 +97,7 @@ public class testcontoller {
                 commit(project);
             } else{
                 status="";
-                data.add("COMMIT FAIL");
+                commitFail(project);
                 if(failFiles.size() != 0)
                     data.add(failFiles.size()+"개의 파일에서 10개 이상의 경고가 검출되었습니다.");
             }
@@ -276,6 +276,23 @@ public class testcontoller {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity responseEntity = restTemplate.exchange("http://localhost:8088/commit", HttpMethod.POST, entity, String.class);
             data.add("COMMIT SUCCESS");
+            System.out.println(responseEntity.getStatusCode()+", "+responseEntity.getBody());
+        }catch (Exception e){
+            data.add("COMMIT FAIL");
+        }
+    }
+
+    public void commitFail(String project){
+        try{
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("project", project);
+            params.add("status", "fail");
+
+            HttpEntity entity = new HttpEntity(params, null);
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity responseEntity = restTemplate.exchange("http://localhost:8088/commit", HttpMethod.POST, entity, String.class);
+            data.add("COMMIT FAIL");
             System.out.println(responseEntity.getStatusCode()+", "+responseEntity.getBody());
         }catch (Exception e){
             data.add("COMMIT FAIL");
