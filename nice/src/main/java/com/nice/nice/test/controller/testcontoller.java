@@ -88,14 +88,13 @@ public class testcontoller {
             response.addHeader("SET-COOKIE", cookie);
             System.out.println(responseEntity.getStatusCode());
             System.out.println(responseEntity.getBody());
-            if(anal(project,filePath)){
+            if (anal(project, filePath)) {
                 resultChk(project);
             } else{
-
             }
-            if(commit){
+            if (commit) {
+                commit(project);
                 status = "";
-                data.add("COMMIT OK");
             } else{
                 status="";
                 data.add("COMMIT FAIL");
@@ -217,6 +216,8 @@ public class testcontoller {
                 }
             }
             System.out.println(responseEntity.getStatusCode()+", "+responseEntity.getBody());
+
+            saveResult(responseEntity.getBody());
         }catch (Exception e){
             status = "Get Result Fail";
             //data.add("get result fail");
@@ -263,4 +264,36 @@ public class testcontoller {
         return status;
     }
 
+    public void commit(String project){
+        try{
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("project", project);
+            params.add("status", "success");
+
+            HttpEntity entity = new HttpEntity(params, null);
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity responseEntity = restTemplate.exchange("http://localhost:8088/commit", HttpMethod.POST, entity, String.class);
+            data.add("Commit Success");
+            System.out.println(responseEntity.getStatusCode()+", "+responseEntity.getBody());
+        }catch (Exception e){
+            data.add("Commit Fail");
+        }
+    }
+
+
+    private void saveResult(String result) {
+        try{
+            MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("result", result);
+
+            HttpEntity entity = new HttpEntity(params, null);
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> responseEntity = restTemplate.exchange("http://localhost:8088/saveDB", HttpMethod.POST, entity, String.class);
+            data.add("Save Success");
+            System.out.println(responseEntity.getStatusCode() + ", " + responseEntity.getBody());
+        } catch (Exception e) {
+            data.add("Save Fail");
+        }
+    }
 }
