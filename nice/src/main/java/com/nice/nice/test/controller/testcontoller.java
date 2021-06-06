@@ -93,8 +93,8 @@ public class testcontoller {
             } else{
             }
             if (commit) {
-                commit(project);
                 status = "";
+                commit(project);
             } else{
                 status="";
                 data.add("COMMIT FAIL");
@@ -274,10 +274,10 @@ public class testcontoller {
 
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity responseEntity = restTemplate.exchange("http://localhost:8088/commit", HttpMethod.POST, entity, String.class);
-            data.add("Commit Success");
+            data.add("COMMIT SUCCESS");
             System.out.println(responseEntity.getStatusCode()+", "+responseEntity.getBody());
         }catch (Exception e){
-            data.add("Commit Fail");
+            data.add("COMMIT FAIL");
         }
     }
 
@@ -290,10 +290,10 @@ public class testcontoller {
             HttpEntity entity = new HttpEntity(params, null);
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> responseEntity = restTemplate.exchange("http://localhost:8088/saveDB", HttpMethod.POST, entity, String.class);
-            data.add("Save Success");
+            data.add("SAVE SUCCESS");
             System.out.println(responseEntity.getStatusCode() + ", " + responseEntity.getBody());
         } catch (Exception e) {
-            data.add("Save Fail");
+            data.add("SAVE FAIL");
         }
     }
 }
